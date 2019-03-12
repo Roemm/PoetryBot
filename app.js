@@ -128,14 +128,19 @@ function postText(_x){
 			   		// wordCounts.push(words);
 			   	}
 
-			   	//choose the tweets with the most words
+			   	//choose the tweets randomly
 			   	var choose = Math.floor((Math.random() * finals.length));
-			   	// var max = Math.max(...wordCounts);
-			   	// var choose = wordCounts.indexOf(max);
 	  			poemText =finals[choose];
-	  			var postText = themes[_x]+'\n'+'\n'+analyze(poemText);
-	  			postText = postText.toUpperCase();
-	  			console.log(postText);
+	  			var postText = themes[_x].toUpperCase()+'\n'+'\n'+analyze(poemText);
+	  			// console.log(postText);
+	  			for (var i = 0; i < postText.length; i++) {
+	  				if(postText[i]=='\n' && postText[i+1]!='\n'){
+	  					// console.log(postText[i+1].toUpperCase());
+	  					postText = postText.substring(0,i+1)+postText[i+1].toUpperCase()+postText.substring(i+2);
+	  				}
+	  			}
+	  			// postText = postText.toUpperCase();
+	  			// console.log(postText);
 	  			T.post('statuses/update', { status: postText }, function(err, data, response) {
 	  				console.log(data);
 				})

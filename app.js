@@ -1,7 +1,5 @@
 var Twit = require('twit')
-
 var config = require('./config.js')
-
 var T = new Twit(config);
 
 //poetry theme
@@ -45,8 +43,9 @@ function analyze(poem){
 	}
 	themes.push(poemArray[newTheme]);
 
-	console.log(themes);
+	// console.log(themes);
 	var rs = rita.RiString(poem);
+	console.log(rs.features());
 	var stresses = rs.features().stresses.split(' ');
 
 	var stressP = [];
@@ -99,7 +98,7 @@ function removeUrl(str_){
 //remove all the punctuation marks and emojis, leave only words
 function removeP(_str){
 	_str = _str.replace(/_/g, ' ')
-	return _str.replace(/[^\w\s]|#'/g, "");
+	return _str.replace(/[^\w\s]|#/g, "");
 }
 
 var x = 0;
@@ -131,10 +130,10 @@ function postText(_x){
 			   	//choose the tweets randomly
 			   	var choose = Math.floor((Math.random() * finals.length));
 	  			poemText =finals[choose];
-	  			var postText = themes[_x].toUpperCase()+'\n'+'\n'+analyze(poemText);
+	  			var postText = '#' + themes[_x].toUpperCase()+'\n'+'\n'+analyze(poemText);
 	  			// console.log(postText);
 	  			for (var i = 0; i < postText.length; i++) {
-	  				if(postText[i]=='\n' && postText[i+1]!='\n'){
+	  				if(postText[i]=='\n' && postText[i+1]!='\n' ){
 	  					// console.log(postText[i+1].toUpperCase());
 	  					postText = postText.substring(0,i+1)+postText[i+1].toUpperCase()+postText.substring(i+2);
 	  				}
@@ -143,6 +142,7 @@ function postText(_x){
 	  			// console.log(postText);
 	  			T.post('statuses/update', { status: postText }, function(err, data, response) {
 	  				console.log(data);
+	  				console.log(postText);
 				})
 
 			})

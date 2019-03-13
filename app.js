@@ -26,16 +26,7 @@ const instertAt = (str, sub, pos) => `${str.slice(0, pos)}${sub}${str.slice(pos)
 var rita = require('rita');
 function analyze(poem){
 
-	// for (var i = poem.length-1; i >=0; i--) {
-	// 	// console.log(poem[i])
-	// 	if(poem[i] != poem[i].toLowerCase()){
-	// 		var newString = instertAt(poem, '\n', i-1);
-	// 		poem = newString;
-	// 	}
-	// }
-	// poemNew = poem.replace(/\n /g, '\n');
-
-	// console.log(poemNew)
+	//randomly choose a word from the tweet and push it to the title array
 	var poemArray = poem.split(' ');
 	var newTheme = Math.floor((Math.random() * poemArray.length));
 	while (poemArray[newTheme]== ''){
@@ -43,7 +34,7 @@ function analyze(poem){
 	}
 	themes.push(poemArray[newTheme]);
 
-	// console.log(themes);
+	// use rita package to analyze the sentences.
 	var rs = rita.RiString(poem);
 	console.log(rs.features());
 	var stresses = rs.features().stresses.split(' ');
@@ -55,6 +46,7 @@ function analyze(poem){
   		}
   	}
 
+  	//add line breaks based on the streeses
 	for (var i = poemArray.length-1; i >=0; i--) {
 		if (stressP.includes(i)){
 			poemArray.splice(i+1, 0, '\n');
@@ -71,11 +63,6 @@ function analyze(poem){
 	return string;
 
 }
-
-//word count function
-// function wordCount(str) { 
-//   return str.split(" ").length;
-// }
 
 //remove all the urls in the text
 function removeUrl(str_){
@@ -103,12 +90,14 @@ function removeP(_str){
 
 var x = 0;
 
+//function that actually run the bot
 function postText(_x){
 	var wordCounts = [];
 	var finals = []
 	T.get('search/tweets', 
 			{ q: `${themes[_x]} lang="en" -filter:retweets -filter:replies`, count: 50}, 
 			  function(err, data, response) {
+
 			  	//first remove all the truncated text
 				for (var i = data.statuses.length-1; i >= 0; i--) {
 			   		if(data.statuses[i].truncated==true){
@@ -116,30 +105,29 @@ function postText(_x){
 			   		}
 			   	}
 
-
+			   	//remove all the links and punctuation marks in the original tweet
 			   	for (var i = 0; i < data.statuses.length; i++) {
 			   		// console.log(data.statuses[i].text)
 			   		var urlMoved = removeUrl(data.statuses[i].text);
 			   		// console.log(urlMoved);
 			   		var final = removeP(urlMoved);
 			   		finals.push(final);
-			   		// var words = wordCount(final);
-			   		// wordCounts.push(words);
 			   	}
 
 			   	//choose the tweets randomly
 			   	var choose = Math.floor((Math.random() * finals.length));
 	  			poemText =finals[choose];
+
+	  			//add title, analyze the sentence and capitalize the first word at each line
 	  			var postText = '#' + themes[_x].toUpperCase()+'\n'+'\n'+analyze(poemText);
-	  			// console.log(postText);
 	  			for (var i = 0; i < postText.length; i++) {
-	  				if(postText[i]=='\n' && postText[i+1]!='\n' ){
+	  				if(postText[i]=='\n' && postText[i+1]!='\n' && typeof(postText[i+1]) != 'undefined'){
 	  					// console.log(postText[i+1].toUpperCase());
 	  					postText = postText.substring(0,i+1)+postText[i+1].toUpperCase()+postText.substring(i+2);
 	  				}
 	  			}
-	  			// postText = postText.toUpperCase();
-	  			// console.log(postText);
+
+	  			//post it!
 	  			T.post('statuses/update', { status: postText }, function(err, data, response) {
 	  				console.log(data);
 	  				console.log(postText);
@@ -150,6 +138,7 @@ function postText(_x){
 
 postText(x);
 
+//run the bot every 50 seconds
 setInterval(function() {
 	x++;
     if(x < themes.length){

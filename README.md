@@ -15,3 +15,5 @@ Right now, the bot will post every 50 seconds. You can change it to any time you
 * Since the twitter's language filter is not very accurate, the search result can sometimes include other language.
 
 * Rita package cannot analyze non-word, so if the tweets includes non-word, like hashtags consisting of multiple words or typo or just random letters (as tweets always do), the result may not be very poetical.
+
+* Twitter divedes their search API to three tiers--Standard, Premium and Enterprise. Based on the account you have right now, the results you get may differ. For Standard tier, it returns datas within 7 days, so the result you get can be limited and repeating itself. 

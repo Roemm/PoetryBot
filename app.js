@@ -32,11 +32,10 @@ function analyze(poem){
 	while (poemArray[newTheme]== ''){
 		var newTheme = Math.floor((Math.random() * poemArray.length));
 	}
-	themes.push(poemArray[newTheme]);
 
+	themes.push(poemArray[newTheme]);
 	// use rita package to analyze the sentences.
 	var rs = rita.RiString(poem);
-	console.log(rs.features());
 	var stresses = rs.features().stresses.split(' ');
 
 	var stressP = [];
@@ -97,7 +96,10 @@ function postText(_x){
 	T.get('search/tweets', 
 			{ q: `${themes[_x]} lang="en" -filter:retweets -filter:replies`, count: 50}, 
 			  function(err, data, response) {
-
+			  	if (data.statuses.length == 0) {
+			  		x = 0;
+			  		return;
+			  	}
 			  	//first remove all the truncated text
 				for (var i = data.statuses.length-1; i >= 0; i--) {
 			   		if(data.statuses[i].truncated==true){
@@ -115,9 +117,11 @@ function postText(_x){
 			   	}
 
 			   	//choose the tweets randomly
-			   	var choose = Math.floor((Math.random() * finals.length));
+			   	while(typeof(finals[choose]) == 'undefined'){
+			   		console.log("choosing tweets")
+			   		var choose = Math.floor((Math.random() * finals.length));
+			   	}
 	  			poemText =finals[choose];
-
 	  			//add title, analyze the sentence and capitalize the first word at each line
 	  			var postText = '#' + themes[_x].toUpperCase()+'\n'+'\n'+analyze(poemText);
 	  			for (var i = 0; i < postText.length; i++) {
@@ -126,12 +130,12 @@ function postText(_x){
 	  					postText = postText.substring(0,i+1)+postText[i+1].toUpperCase()+postText.substring(i+2);
 	  				}
 	  			}
-
+	  			console.log(postText);
 	  			//post it!
-	  			T.post('statuses/update', { status: postText }, function(err, data, response) {
-	  				console.log(data);
-	  				console.log(postText);
-				})
+	  	// 		T.post('statuses/update', { status: postText }, function(err, data, response) {
+	  	// 			console.log(data);
+	  	// 			console.log(postText);
+				// })
 
 			})
 }
@@ -145,7 +149,7 @@ setInterval(function() {
 	    postText(x)
 	}
 	else return;	
-}, 50000);
+}, 2000);
 
 
  
